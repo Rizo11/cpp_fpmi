@@ -141,12 +141,12 @@
   - `m.empty();`
   
 ### 1.6 Expressions and operators
-- Arithmetic operators.
+- **Arithmetic operators.** rvalue
   - + - * / %
-- Bitwise operators.
+- **Bitwise operators.** rvalue
   - & | ^ ~ << >>
     - 5 << 2 = 101
-- Logical operators.
+- **Logical operators.** rvalue
   - && || !
   ```
   int a = 0;
@@ -167,10 +167,94 @@
 
   }
   ```
-- increment and decrement
+- **Comparison operator** rvalue
+  - `== != < > <= >=`
+- **increment and decrement**
   - postfix in/decrement : a++ : in/decrements numbers and returns old value
   - prefix in/decrement : ++a : in/decrements numbers and returns new value
+   - better to use `++i` than `i++` because it will take less space. `i++` will take more space
+   - `++i` lvalue
+   - `i++` rvalue
+   - increment requires its args to be __lvalue__
+   - `++x++` => CE
+     - `++x++` parsed as `++(x++)` not `(++x)++`
+     - `(x++)` returns rvalue
+     - increment requires lvalue,thus CE
+   - `(++x)++;` => works
+   - `++++++x;` => works `++(++(++x));` prefix returns lvalue and increment requires its args to be lvalue
+   - `+++++x;` => CE `++(++(+x));` unary `+` returns rvalue and increment requires its args to be lvalue
+ - **Assignment and compound assignment.** right-to-left, lvalue
+   - `+= -= *= /= %= &= |= ^= <<= >>=` : more efficient and take less space
+   - assignment operator returns assigned value, for example `a = b` return `b`. Hence, we can use `a = b = c` <=> `a = (b = c)`
+ ```
+  a = 0; b = 1; c = 2;
+  a = b = c;
+  cout << a << " " << b << " " << c << endl;
+ ```
+- operator **sizeof()** rvalue
+   - `int a = 0; sizeof(a); sizeof(int)`
+   - is a static, the value if know during the compilation
+   - `vector<int> v(100); sizeof(v);`
+   - `sizeof()` from containers (`queue`, `vector` ...) is constant
+   - `vector` saves:
+     - size
+     - current volume
+     - pointer to array
+     - allocator
+   - `sizeof(vactor)` gives the total mem. size used by those fields of vector, but not the size of the array
+   - `sizeof() does not calculate what is inside, rather it returns size of it`
+     - `int a = 0; sizeof(a++);` value of `a` will not change
+- **Ternary operator** r/lvalue depends on args
+   - `condition ? when_true : when_false;`
+   - `x = (condition ? a : b);`
+   - `a` and `b` should be same type or close to each other and same r/lrvalue
+   - `cout << (2 < 3 ? "sss" : "sssfdfd").size()` -> works
+- **,(comma) Operator** r/lvalue depends on args
+  - `int b = 2; x = (a = b, ++y, ++b);` `x` is equal to 3
+  - `(a = b, c = d) = x;` => `c = x`
+  - for sure in , operator will start from left to right, while it might not be true for arithmetic operators
+- **Operator presedence** preoritet operatorov
+  - <img title="a title" alt="Alt text" src="lib/Screenshot from 2023-01-18 07-26-44.png">
+```
+int x = 0;
+++x = x++;
+cout << x << endl;  //result is 0
+
+std::cout << a & b; => (std::cout << a) & b;
+
+*p++ => *(p++)
+```
+- Operators that have the same precedence are bound to their arguments in the direction of their associativity
+  - `a = b = c` is parsed as `a = (b = c)`, and not as `(a = b) = c` because of right-to-left associativity of assignment.
+  - `a + b - c` is parsed `(a + b) - c` and not `a + (b - c)` because of left-to-right associativity of addition and subtraction.
+  - `a[1][2]++` is `((a[1])[2])++`
+  - `a.b++` is `(a.b)++`
+  - `delete ++*p` is `delete(++(*p))`
+  - Precedence and associativity are compile-time concepts and are independent from order of evaluation, which is a runtime concept.
+  - **Order of evaluation** poryadok vichisleniya
+    - of any part of any expression, including order of evaluation of function arguments is unspecified (with some exceptions listed below). The compiler can evaluate operands and other subexpressions in any order, and may choose another order when the same expression is evaluated again.
+    - no concept of left-to-right or right-to-left evaluation in C++
+    - the expression `a() + b() + c()` is parsed as `(a() + b()) + c()` due to left-to-right associativity of operator`+`, but `c()` may be evaluated first, last, or between `a()` or `b()` at run time
+  ```
+  #include <cstdio>
+  int a() { return std::puts("a"); }
+  int b() { return std::puts("b"); }
+  int c() { return std::puts("c"); }
   
+  void z(int, int, int) {}
+  
+  int main()
+  {
+      z(a(), b(), c());       // all 6 permutations of output are allowed
+      return a() + b() + c(); // all 6 permutations of output are allowed
+  }
+  // possible output: c b a a b c
+  ```
+  - **Concepts of lvalue and rvalue**
+    - `(a, b) = 5;` => a = a, b = 5;
+    - `a + b = 5;` => can't do in C++
+    - `(2 < 3 ? ++x : x++) = 5;` => CE
+    - `(2 < 3 ? ++x : x++);` => not error
 
 ### 1.7 Control statements
 - `if (condition) statement;`
@@ -184,6 +268,7 @@
   `default:`
     `statements...;`
   `}`
+  
 ```
  for (int i = 0; i < n; i++) {
   do somth...;
@@ -196,34 +281,41 @@
 
  }
  ```
- - better to use `++i` than `i++` because it will take less space. `i++` will take more space
- - Assignment and compount assignment.
- - `+= -= *= /= %= &= |= ^= <<= >>=` : more efficient and take less space
- - assignment operator returns assigned value, for example `a = b` return `b`. Hence, we can use `a = b = c` <=> `a = (b = c)`
- ```
-  a = 0; b = 1; c = 2;
-  a = b = c;
-  cout << a << " " << b << " " << c << endl;
- ```
- - operator **sizeof()**
-   - `int a = 0; sizeof(a); sizeof(int)`
-   - is a static, the value if know during the compilation
-   - `vector<int> v(100); sizeof(v);`
-   - `sizeof()` from containers (`queue`, `vector` ...) is constant
-   - `vector` saves:
-     - size
-     - current volume
-     - pointer to array
-     - allocator
-   - `sizeof(vactor)` gives the total mem. size used by those fields of vector, but not the size of the array
-   - `sizeof() does not calculate what is inside, rather it returns size of it`
-     - `int a = 0; sizeof(a++);` value of `a` will not change
- - **Ternary operator**
-   - `condition ? when_true : when_false;`
-   - `x = (condition ? a : b);`
-   - `a` and `b` should be same type or close to each other
-   - `cout << (2 < 3 ? "sss" : "sssfdfd").size()` -> works
- - **,(comma) Operator**
-   - `int b = 2; x = (a = b, ++y, ++b);` `x` is equal to 3
-   - `(a = b, c = d) = x;` => `c = x`
-   - for sure in , operator will start from left to right, while it might not be true for arithmetic operators
+
+## 2 Compound types
+
+### 2.1 Pointers and kinds of memory
+- ***:** T\* :arrow_right: T (derefence)
+- **&:** T :arrow_right: T*
+- **+:** (T*, int) :arrow_right: T*
+  - (int, T*) :arrow_right: T*
+- **-:** (T*, T*) :arrow_right: ptrdiff_t (=int)
+- :heavy_check_mark: (*pointer)++/-- number
+- :heavy_check_mark: pointer - pointer
+  ```
+  double x = 3.14;
+  double* p = &x;
+  double* pp = p + 1;
+  cout << pp-p << endl;
+  // output: 1 (1 step difference between pp and p in memory)
+  ```
+- :x: number += pointer :arrow_right: **CE**
+- :x: pointer + pointer
+- `void* p` :arrow_right: pointer to the memory space where any type can be store
+  - :x: *void_pointer because it is unclear what should be returned
+  - can be casted to other pointer types
+    - in C, malloc returns void* and it must be casted to other pointer type
+    ```
+    char *str;
+    /* Initial memory allocation */
+    str = (char *) malloc(15);
+    ```
+- `(T*) ++ -- += -=`
+- `sizeof(pointer) = 8;`
+- `std::cout << std:hex << x;` will print x in hex
+- **nullptr** it is like zero but for pointer types
+  - type: `nullptr_t`
+  - can be casted to any type
+  - `NULL` is a number constant, used to initialize number type variables
+  - `nullptr` is a pointer constant, used to initialize pointer type variables
+
