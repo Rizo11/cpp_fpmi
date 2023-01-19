@@ -284,7 +284,7 @@ std::cout << a & b; => (std::cout << a) & b;
 
 ## 2 Compound types
 
-### 2.1 Pointers and kinds of memory
+  ### 2.1 Pointers
 - ***:** T\* :arrow_right: T (derefence)
 - **&:** T :arrow_right: T*
 - **+:** (T*, int) :arrow_right: T*
@@ -318,4 +318,90 @@ std::cout << a & b; => (std::cout << a) & b;
   - can be casted to any type
   - `NULL` is a number constant, used to initialize number type variables
   - `nullptr` is a pointer constant, used to initialize pointer type variables
+  
+  ### 2.2 kinds of memory
+- 
+- **moemory**
+  - any vriable stored in stack will live inside the scode of closest `{}`
+- **static memory**
+  - will be allocated at the beginning and variables inside static memory live until the end of the program
+  - `static int x = 0;`
+  - **static** variables initialized once and value will be saved
+  - **global** variables also stored in static memory
+  - for a program OS will allocate memory
+  - [  data   |   text   |   stack ~ 4MB   ]
+    - data: for static memory (static vars, global vars)
+    - text: code of the program
+    - stack: for variables, function calls
+- **dynamic memory**
+  - allocated at runtime
+  - `int* p = new int(5);` returns pointer to the memory where 5 is stored
+  - dynamic vars will be stored a long as we want or untill we `delete p;`
+  - **memory leak**
+    - when you allocated dynamic memory and forget to free it
+  - deleting twice can cause to **segmentation fault** or **UB**
+  
+  ### 2.3 array
+- arrays are similar to pointers but not the same
+  - `int a[10];`
+  - type of a is `int(*)[10]`
+  - `int*p = a;` array to pointer conversion
+    - `cout << *(p+2);` print 3rd element of array
+    - `cout << p[2];` print 3rd element of array
+    - `cout << a[2];` print 3rd element of array
+    - `cout << *(a + 2);` print 3rd element of array
+    - `cout << 2[a];` print 3rd element of array
+  - `int* p = a+4;` adressing `p` to the 5th element of `a`
+  - **array vs. pointers**
+    - 1. you can assign pointer to pointer, but not array to array
+      - :x: `int b[10] = a;`
+      - :x: `int b[10]; a = b;`
+    - 2. `sizeof(array)` will give you a total size of array, while `sizeof(pointer)` will give a size of a pointer, not what it points to
+  - **dynamic array initializaiton**
+    - `int* pa = new int[100];`
+    - `delete[] pa;`
+    - `new int[10]` vs. `new int(10)`
+      - `new int[10]` create dynamic array with 10 elements and return pointer to it.
+      - `new int(10)` create dynamic int variable with value 10 and return pointer to it.
+    - :x: formally you can't do the following
+    ```
+    int n;
+    cin >> n;
+    int b[n];
+    ```
+    - :heavy_check_mark: you can do with dynamically allocated arrays
+    ```
+    int n;
+    cin >> n;
+    int* pa = new int[n]; 
+    ```
 
+
+
+
+  ### 2.4 functions
+  - **function overloading**
+    - signature of a function is its args, not what is returns
+    - same name, but different args
+    - `void f(int x);`
+    - `void f(double x);`
+    - `void f(char x);`
+    1. exact match
+    2. promotion
+    3. built-in conversion (char -> int, double -> float)
+    4. user-defined conversion
+    - below code will give CE, because ambiguous call. It is ambiguous because _double => int_ and _double => float_ is same, and compiler doesn't know which version of `f()` to choose 
+    ```
+    void f(int x) {
+        cout << "int arg: " << x << endl;
+    }
+
+    void f(float x) {
+            cout << "float arg: " << x << endl;
+    }
+    int main() {
+      double x = 1.3;
+      f(a);  //ambiguous call!
+    }
+    ```
+    - while choose function overcloads, compiler does not look at the return value, but only args(signature)
