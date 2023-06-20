@@ -16,8 +16,7 @@
     - referencing to undeclared vars(names)
     - ambiguous usage of variables
     - <img title="a title" alt="Alt text" src="lib/Screenshot from 2023-01-16 01-16-19.png">
-  - error vs. fatal error : compiler stops analyzing when
-  - it meets fatal error (e.g `#include <not_lib>`), but with error keeps analysing
+  - error vs. fatal error : compiler stops analyzing when it meets fatal error (e.g `#include <not_lib>`), but with error keeps analysing
 - __RE (Runtime errors)__
   - Segmentation fault: referencing to the memory location that program don't have access
     - going too far from array bound
@@ -84,7 +83,7 @@
   -----------------
   - float - usually 4 bytes - 0.4f
   - double = 2 * (mem of float) = 8 bytes. by default double in cpp
-  - <img title="a title" alt="Alt text" src="lib/Screenshot from 2023-01-16 17-18-21.png">
+  <img title="a title" alt="Alt text" src="lib/Screenshot from 2023-01-16 17-18-21.png">
   - long double = 16 bytes
   -------------
   - char : 1 byte number
@@ -108,7 +107,7 @@
   - s.substr(2, 3) => "bcd"
   - s + 'h' or 'i' + s or s+s or s += 'j';
 - **std::vector**
-  - `std;:vector<int> v(10);` default initialized with 0's
+  - `std::vector<int> v(10);` default initialized with 0's
   - `v[5] = 3;`
   - `v.resize(20);`
   - `v.push_back(4);` adding 4 to the end of the vector and size+1

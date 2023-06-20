@@ -99,22 +99,10 @@ public:
     void push(T value){
         Node<T> *newNode = new Node(value);
 
-        // Check if stack (heap) is full.
-        // Then inserting an element would
-        // lead to stack overflow
         if (!newNode) {
             cout << "\nStack Overflow";
             exit(1);
         }
-        /*if (size == 0) {
-            top = newNode;
-        } else {
-            // Put top pointer reference into newNode next
-            newNode->next = top->next;
-            // Make newNode as top of Stack
-            top = newNode;
-        }*/
-
         newNode->value = value;
         newNode->next = top;
         top = newNode;
@@ -179,8 +167,8 @@ int isOperator(string exp) {
 }
 
 int main() {
-    char line[1000];
-    cin.getline(line, 1000);
+    char line[100000];
+    cin.getline(line, 100000);
     QUEUE<string> input = splitstr(line, " ");
 
     STACK<string> operators;
@@ -193,33 +181,24 @@ int main() {
             string opr;
 
             if (isOper == 0) { // )
-                opr = operators.pop();
-                while (opr != "(") {
-                    output.offer(opr);
-                    opr = operators.pop();
+                while (!operators.isEmpty() && operators.peek() != "(") {
+                    output.offer(operators.pop());
+
                 }
-                if (operators.isEmpty()) {
+                operators.pop();
+
+                if ( operators.isEmpty()) {
                     continue;
                 }
                 if (operators.peek() == "min" || operators.peek() == "max") {
                     output.offer(operators.pop());
-                    if (operators.isEmpty()) {
-                        break;
-                    }
                 }
             } else if (isOper == 1 || isOper == 2) {  // min && max
                 if (operators.isEmpty()) {
                     operators.push(current_input);
                     continue;
                 }
-                bool notEntered = true;
-                while (operators.peek() == "max" || operators.peek() == "min") {
-                    notEntered = false;
-                    output.offer(operators.pop());
-                    if (operators.isEmpty()) {
-                        break;
-                    }
-                }
+                
                 operators.push(current_input);
 
             } else if (isOper == 3 || isOper == 4) { // *
@@ -227,13 +206,8 @@ int main() {
                     operators.push(current_input);
                     continue;
                 }
-                bool notEntered = true;
-                while (operators.peek() == "min" || operators.peek() == "min" || operators.peek() == "/" || operators.peek() == "*") {
-                    notEntered = false;
+                if (operators.peek() == "/" || operators.peek() == "*") {
                     output.offer(operators.pop());
-                    if (operators.isEmpty()) {
-                        break;
-                    }
                 }
                 operators.push(current_input);
             } else if (isOper == 5 || isOper == 6) { // +
@@ -241,10 +215,7 @@ int main() {
                     operators.push(current_input);
                     continue;
                 }
-                bool notEntered = true;
-                while (operators.peek() == "min" || operators.peek() == "min" || operators.peek() == "/" ||
-                    operators.peek() == "*" || operators.peek() == "-" || operators.peek() == "+") {
-                    notEntered = false;
+                while (operators.peek() == "/" || operators.peek() == "*" || operators.peek() == "-" || operators.peek() == "+") {
                     output.offer(operators.pop());
                     if (operators.isEmpty()) {
                         break;
@@ -254,14 +225,13 @@ int main() {
             } else if (isOper == 7) { // (
                 operators.push(current_input);
             } else if (isOper == 8) { // ,
-                while (operators.peek() != "(") {
+                while (!operators.isEmpty() && operators.peek() != "(") {
                     output.offer(operators.pop());
                 }
             } else if (isOper == -1) {
                 output.offer(current_input);
             }
     }
-
     while (!operators.isEmpty()) {
         output.offer(operators.pop());
     }

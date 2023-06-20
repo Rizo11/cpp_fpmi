@@ -106,14 +106,6 @@ public:
             cout << "\nStack Overflow";
             exit(1);
         }
-        /*if (size == 0) {
-            top = newNode;
-        } else {
-            // Put top pointer reference into newNode next
-            newNode->next = top->next;
-            // Make newNode as top of Stack
-            top = newNode;
-        }*/
 
         newNode->value = value;
         newNode->next = top;
@@ -178,100 +170,111 @@ int isOperator(string exp) {
     return -1;
 }
 
+void expression (string opr, STACK<string>& output) {
+    if (opr == "+") {
+        int ex1 = stoi(output.pop());
+        int ex2 = stoi(output.pop());
+        ex1 = ex1 + ex2;
+        string newCalc = to_string(ex1);
+        output.push(newCalc);
+    } else if (opr == "-") {
+        int ex1 = stoi(output.pop());
+        int ex2 = stoi(output.pop());
+        ex2 = ex2 - ex1;
+        output.push(to_string(ex2));
+    } else if (opr == "*") {
+        int ex1 = stoi(output.pop());
+        int ex2 = stoi(output.pop());
+        ex2 = ex2 * ex1;
+        output.push(to_string(ex2));
+    } else if (opr == "/") {
+        int ex1 = stoi(output.pop());
+        int ex2 = stoi(output.pop());
+        ex2 = ex2 / ex1;
+        output.push(to_string(ex2));
+    } else if (opr == "max") {
+        int ex1 = stoi(output.pop());
+        int ex2 = stoi(output.pop());
+        ex2 = ex1 > ex2 ? ex1 : ex2;
+        output.push(to_string(ex2));
+    } else if (opr == "min") {
+        int ex1 = stoi(output.pop());
+        int ex2 = stoi(output.pop());
+        ex2 = ex1 < ex2 ? ex1 : ex2;
+        output.push(to_string(ex2));
+    }
+}
 int main() {
-    char line[1000];
-    cin.getline(line, 1000);
+    char line[1000000];
+    cin.getline(line, 1000000);
     QUEUE<string> input = splitstr(line, " ");
 
     STACK<string> operators;
-    QUEUE<string> output;
+    STACK<string> output;
     STACK<int> evaluation;
 
     while (!input.isEmpty()) {
-            string current_input = input.pool();
-            int isOper = isOperator(current_input);
-            string opr;
+        string current_input = input.pool();
+        int isOper = isOperator(current_input);
+        string opr;
 
-            if (isOper == 0) { // )
-                opr = operators.pop();
-                while (opr != "(") {
-                    output.offer(opr);
-                    opr = operators.pop();
-                }
-                if (operators.isEmpty()) {
-                    continue;
-                }
-                if (operators.peek() == "min" || operators.peek() == "max") {
-                    output.offer(operators.pop());
-                    if (operators.isEmpty()) {
-                        break;
-                    }
-                }
-            } else if (isOper == 1 || isOper == 2) {  // min && max
-                if (operators.isEmpty()) {
-                    operators.push(current_input);
-                    continue;
-                }
-                bool notEntered = true;
-                while (operators.peek() == "max" || operators.peek() == "min") {
-                    notEntered = false;
-                    output.offer(operators.pop());
-                    if (operators.isEmpty()) {
-                        break;
-                    }
-                }
-                operators.push(current_input);
-
-            } else if (isOper == 3 || isOper == 4) { // *
-                if (operators.isEmpty()) {
-                    operators.push(current_input);
-                    continue;
-                }
-                bool notEntered = true;
-                while (operators.peek() == "min" || operators.peek() == "min" || operators.peek() == "/" || operators.peek() == "*") {
-                    notEntered = false;
-                    output.offer(operators.pop());
-                    if (operators.isEmpty()) {
-                        break;
-                    }
-                }
-                operators.push(current_input);
-            } else if (isOper == 5 || isOper == 6) { // +
-                if (operators.isEmpty()) {
-                    operators.push(current_input);
-                    continue;
-                }
-                bool notEntered = true;
-                while (operators.peek() == "min" || operators.peek() == "min" || operators.peek() == "/" ||
-                    operators.peek() == "*" || operators.peek() == "-" || operators.peek() == "+") {
-                    notEntered = false;
-                    output.offer(operators.pop());
-                    if (operators.isEmpty()) {
-                        break;
-                    }
-                }
-                operators.push(current_input);
-            } else if (isOper == 7) { // (
-                operators.push(current_input);
-            } else if (isOper == 8) { // ,
-                while (operators.peek() != "(") {
-                    output.offer(operators.pop());
-                }
-            } else if (isOper == -1) {
-                output.offer(current_input);
+        if (isOper == 0) { // )
+            while (operators.peek() != "(") {
+                expression(operators.pop(), output);
             }
-    }
+            operators.pop();
 
+            if ( operators.isEmpty()) {
+                continue;
+            }
+            if (operators.peek() == "min" || operators.peek() == "max") {
+                expression(operators.pop(), output);
+            }
+        } else if (isOper == 1 || isOper == 2) {  // min && max
+            if (operators.isEmpty()) {
+                operators.push(current_input);
+                continue;
+            }
+
+            operators.push(current_input);
+
+        } else if (isOper == 3 || isOper == 4) { // *
+            if (operators.isEmpty()) {
+                operators.push(current_input);
+                continue;
+            }
+            if (operators.peek() == "/" || operators.peek() == "*") {
+                expression(operators.pop(), output);
+            }
+            operators.push(current_input);
+        } else if (isOper == 5 || isOper == 6) { // +
+            if (operators.isEmpty()) {
+                operators.push(current_input);
+                continue;
+            }
+            while (operators.peek() == "/" || operators.peek() == "*" || operators.peek() == "-" || operators.peek() == "+") {
+                expression(operators.pop(), output);
+                if (operators.isEmpty()) {
+                    break;
+                }
+            }
+            operators.push(current_input);
+        } else if (isOper == 7) { // (
+            operators.push(current_input);
+        } else if (isOper == 8) { // ,
+            while (operators.peek() != "(") {
+                expression(operators.pop(), output);
+            }
+        } else if (isOper == -1) {
+            output.push(current_input);
+        }
+    }
     while (!operators.isEmpty()) {
-        output.offer(operators.pop());
+        expression(operators.pop(), output);
     }
 
     while (!output.isEmpty()) {
-        cout << output.pool() << " ";
-    }
-    cout << endl;
-    while (!operators.isEmpty()) {
-        cout << operators.pop() << " ";
+        cout << output.pop() << " ";
     }
 
     return 0;
